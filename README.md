@@ -7,8 +7,30 @@
 ![image](https://github.com/user-attachments/assets/63cf573e-df85-4988-a57d-602b7398b774)
 
 наполняю его следующим кодом:
+```bash
+#!/bin/bash
 
-![image](https://github.com/user-attachments/assets/0b78863d-6547-4ff9-80bf-62b5d67d7d47)
+# Устанавливаем права на исполнение
+chmod +x "$0"
+
+# Проверка, что есть хотя бы один .txt файл в staging area
+txt_files=$(git diff --cached --name-only --diff-filter=ACM | grep '\.txt$')
+if [ -z "$txt_files" ]; then
+  echo "No .txt files found in the commit. Continuing..."
+  exit 0 #Выход с кодом 0, т.к. ошибка отсутствия файлов не критична.
+fi
+
+# Проверка каждого .txt файла на наличие не-пробельных символов
+for file in $txt_files; do
+  if ! grep -q '[^[:space:]]' "$file"; then
+    echo "Error: File '$file' is empty or contains only whitespace. Commit aborted." >&2
+    exit 1
+  fi
+done
+
+echo "All .txt files are valid. Commit proceeding..."
+exit 0
+```
 
 пытаюсь создать "плохие" файлы и получаю нужный ответ:
 
